@@ -2,7 +2,8 @@
 <html>
     <head>
         <link rel="stylesheet" type="text/css" href="index.css"/>
-        <script src="index.js"></script> 
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        <script type="module" src="index.js"></script> 
     </head> 
 
     <body>
@@ -13,6 +14,7 @@
     </section>
 
     <section id="content">
+        <!-- September 8, 2021 -->
         <h2 class="date">September 8, 2021</h2>
         <h3 class="focus">The Basics of Client-Side Web Dev</h3>
     
@@ -22,15 +24,15 @@
         Try this with several types of events (blur, change, or clicking a button)</p>
        
         <div class="input-container">
-            <div class="input-item">
+            <div class="input-item" id="input8">
                 <p>What is your name?</p>
-                <input type="text" id="name" oninput=changeBackgroundColor()>
+                <input type="text" id="name" placeholder="Enter a name">
                 <p>What is your favorite color?</p>
-                <input type="color" id="color" value="#ffc7cf" oninput=changeBackgroundColor()>
+                <input type="color" id="color" value="#ffc7cf">
                 <p>What is your date of birth?</p>
-                <input type="date" id="birthday" oninput=changeBackgroundColor()>
+                <input type="date" id="birthday">
             </div>
-            <div class="input-item">
+            <div class="input-item" id="output8">
                 <p>Name:</p>
                 <p id="output-name"></p>
                 <p>Favorite Color:</p>
@@ -41,6 +43,7 @@
             </div>
         </div>
 
+        <!-- September 10, 2021 -->
         <h2 class="date">September 10, 2021</h2>
         <h3 class="focus">Static Files as Structure of a website</h3>
 
@@ -52,6 +55,24 @@
             If you are reading this, that means this website is hosted on Github pages at:
             <a id=pageslink href="https://websec2021.github.io/dailytasks/">https://websec2021.github.io/dailytasks/</a>    
         </p>
+
+        <!-- September 13, 2021 -->
+        <h2 class="date">September 13, 2021</h2>
+        <h3 class="focus">Firebase: Real-Time Database</h3>
+
+        <p>Alright, let's make a chat "app":</p>
+
+        <div class="chat">
+            <div class="chat-window" id="chat-window">
+              <ul id="messages">
+                <li class="msg">
+                    <i class="name">Host: </i>Hello and Welcome!
+                </li>
+              </ul>
+              <form id="messageForm" autocomplete="off">
+                <input type="text" id="msg-input" placeholder="Enter a message">
+              </form>
+            </div>
 
   </section>
 

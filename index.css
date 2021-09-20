@@ -48,6 +48,8 @@ h3 {
     background-color: salmon;
     padding: 15px;
     color: rgb(107, 107, 107);
+    border-radius: 20px;
+
   }
   
 .input-item {
@@ -56,9 +58,20 @@ h3 {
     text-align: center;
 }
 
+#input8 {
+    border-top-left-radius: 20px;
+    border-bottom-left-radius: 20px;
+}
+
+#output8 {
+    border-top-right-radius: 20px;
+    border-bottom-right-radius: 20px;
+}
+
 #pageslink {
     color: lightblue;
 }
+
 
 #closing p{
     padding-top: 3em;
@@ -66,3 +79,47 @@ h3 {
     text-align:  center;
     font-weight: lighter;
 }
+
+#chat-window {
+    grid-template-columns: auto auto;
+    background-color: salmon;
+    padding: 15px;
+    color: rgb(107, 107, 107);
+    border-radius: 20px;
+
+    
+}
+
+#messages {
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 30px;
+    padding-bottom: 200px;
+    margin: auto;
+    border-radius: 20px;
+    height: 150px;
+    width: 700px;
+    overflow-x: hidden;
+    overflow-y: auto;
+
+}
+
+#messageForm {
+    /* background-color: rgba(255, 255, 255, 0.8); */
+    padding-bottom: 10px;
+    padding-top: 20px;
+
+}
+
+#msg-input {
+    width: 100%;
+    background-color: rgba(255, 255, 255, 0.8);
+    font-family: "Raleway", sans-serif;
+    font-weight: 300;
+    padding: 12px 20px;
+    display: inline-block;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    box-sizing: border-box;
+    
+}
+
