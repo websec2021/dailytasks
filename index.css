@@ -73,6 +73,8 @@ h3 {
 }
 
 
+/* Chat App */
+
 #closing p{
     padding-top: 3em;
     font-style: italic;
@@ -82,7 +84,7 @@ h3 {
 
 #chat-window {
     grid-template-columns: auto auto;
-    background-color: salmon;
+    background-color: rgba(74, 74, 74);
     padding: 15px;
     color: rgb(107, 107, 107);
     border-radius: 20px;
@@ -90,8 +92,14 @@ h3 {
     
 }
 
+.msg:hover {
+    background-color: rgb(138, 138, 138);
+    
+}
+
 #messages {
-    background-color: rgba(255, 255, 255, 0.8);
+    color: rgba(212, 212, 212);
+    background-color: rgb(128, 128, 128);
     padding: 30px;
     padding-bottom: 200px;
     margin: auto;
@@ -122,4 +130,39 @@ h3 {
     box-sizing: border-box;
     
 }
+
+.msg-text {
+    color: rgba(212, 212, 212);
+    font-weight: 275;
+    margin-top: -4px;
+    padding-bottom: 5px;
+
+}
+
+.msg {
+    display: grid;
+}
+
+.name-date {
+    display: grid;
+    grid-template-columns: 6.5% 93.5%;
+    padding-top: 5px;
+    position: relative;
+    vertical-align: sub;
+    font-style: normal
+}
+
+.msg-date {
+    font-size: 10px;
+    grid-column-start: 2;
+    text-align: right;
+    padding-right: 10px;
+    padding-top: 5px;
+
+}
+
+
+
+
+
 

@@ -68,11 +68,14 @@ $("#messageForm").submit(function(event){
     }
 
     let userColor = colorNames(name)
+    let time = getTime();
+    console.log(time);
 
     rtdb.push(msgRef, {
       name : name,
       msg : text,
-      color : userColor
+      color : userColor,
+      time : time
     });
 
   $("#msg-input").val("");
@@ -83,13 +86,17 @@ $("#messageForm").submit(function(event){
 // Populates the chat app window with all the 
 // messages in the rtdb once a new one is added
 // or when the page is first loaded.
-let reloadMsgs = function() {
+let loadMsgs = function() {
   rtdb.onValue(msgRef, data => {
     $("#messages").empty();
 
     $("#messages").append(
       `<li class="msg">
-      <i class="name" style="font-weight: bold;">Host: </i>Hello and Welcome!
+        <i class="name-date">
+            <i class="name" style="font-weight: bold">Host: </i>
+            <i class="msg-date"></i>
+        </i>
+        <i class="msg-text"> Hello and Welcome!</i>
       </li>`
     );
 
@@ -97,15 +104,34 @@ let reloadMsgs = function() {
         let name = userSnapshot.val().name;
         let msg = userSnapshot.val().msg;
         let color = userSnapshot.val().color;
+        let time = userSnapshot.val().time;
         let key = userSnapshot.key;
         
         event.preventDefault();
 
-        $("#messages").append(
-          `<li class="msg" id=${key}>
-          <i class="name" style="color:${color}; font-weight: bold;">${name}: </i>${msg}
-          </li>`
-        );
+        if(getTime().day == time.day){
+          $("#messages").append(
+            `<li class="msg" id=${key}>
+              <i class="name-date"> 
+                <i class="name" style="color:${color}; font-weight: bold;">${name}: </i>
+                <i class="msg-date"> ${time.hour}:${time.minute} ${time.midday}</i>
+              </i>
+              <i class="msg-text"> ${msg} </i>
+            </li>`
+          );
+        }
+        else{
+          $("#messages").append(
+            `<li class="msg" id=${key}>
+              <i class="name-date"> 
+                <i class="name" style="color:${color}; font-weight: bold;">${name}: </i>
+                <i class="msg-date"> ${time.day} ${time.hour}:${time.minute} ${time.midday}</i>
+              </i>
+              <i class="msg-text"> ${msg} </i>
+            </li>`
+          );
+        }
+        
     });
     
 });
@@ -137,5 +163,41 @@ let colorNames = function(name) {
 };
 
 
+// getTime: 
+// This function gets the day, hour, minute, and midday
+// of the current day and returns those values in an
+// object.
+// returns an object: {string, int, int, string}
+let getTime = function(){
+  var d = new Date();
+  var hours = d.getHours();
+  var hour = ((hours + 11) % 12 + 1);
+
+  if(d.getMinutes() < 10) { var minute = "0" + d.getMinutes().toString(); }
+  else{ var minute = d.getMinutes(); }
+  
+  if (hours > 12){ var midday = "pm"; }
+  else{ var midday = "am"; }
+
+  var weekday = new Array(7);
+  weekday[0] = "Sun";
+  weekday[1] = "Mon";
+  weekday[2] = "Tues";
+  weekday[3] = "Wed";
+  weekday[4] = "Thurs";
+  weekday[5] = "Fri";
+  weekday[6] = "Sat";
+
+  var day = weekday[d.getDay()];
+
+  return {day, hour, minute, midday};
+};
+
 //Calling reloadMsgs
-reloadMsgs();
+loadMsgs();
+
+
+
+
+
+
