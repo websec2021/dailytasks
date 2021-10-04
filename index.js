@@ -1,24 +1,10 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.2/firebase-app.js";
 import * as rtdb from "https://www.gstatic.com/firebasejs/9.0.2/firebase-database.js";
+import * as fbauth from "https://www.gstatic.com/firebasejs/9.0.2/firebase-auth.js";
+
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
-
-
-//The Basics of Client-Side Web Dev
-//Jquery for updating name, color, and birthday
-$("#name").change(function(){
-    $("#output-name").html($("#name").val());
-});
-
-$("#color").change(function(){
-    $(".input-container").css("background-color", $("#color").val())
-    $("#output-color").html("In hex:" + $("#color").val()); 
-});
-
-$("#birthday").change(function(){
-    $("#output-birthday").html($("#birthday").val());
-});
 
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
@@ -38,7 +24,174 @@ const app = initializeApp(firebaseConfig);
 
 
 let db = rtdb.getDatabase(app);
+let auth = fbauth.getAuth(app);
 let msgRef = rtdb.ref(db, "/Chat");
+
+// Msg object
+// holds all the information held in a single message
+class Msg {
+  constructor(key, name, color, time, msg) {
+    this.key = key;
+    this.name = name;
+    this.color = color;
+    this.time = time;
+    this.msg = msg;
+  }
+}
+
+var User = new Object();
+
+var userRef;
+var userRoleRef;
+
+// When "Sign up!" is clicked, brings you to the register page
+$("#sign-up").on("click", ()=>{
+  window.location.href = "register.html";
+});
+
+// Register for an account
+$("#register-button").on("click", ()=>{
+  let email = $("#regemail").val();
+  let p1 = $("#regpass1").val();
+  let p2 = $("#regpass2").val();
+  let username = $("#regusername").val()
+
+  //Checking to see if email is in proper format
+  var mailformat = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+  if(!email.match(mailformat)){
+    alert("You have entered a invalid email address!");
+    clearReg();
+    return;
+  }
+
+  //Checking to see if passwords are the same
+  if (p1 != p2){
+    alert("Passwords don't match!");
+    clearReg();
+    return;
+  }
+
+  //Getting ID of user and pushing username
+  //and roles
+  fbauth.createUserWithEmailAndPassword(auth, email, p1).then(somedata=>{
+    var uid = somedata.user.uid;
+    userRef = rtdb.ref(db, `/users/${uid}/username`);
+    userRoleRef = rtdb.ref(db, `/users/${uid}/roles/user`);
+    console.log(userReg)
+    console.log(userRoleRef)
+    rtdb.set(userRef, username)
+    rtdb.set(userRoleRef, true);
+    window.location.href = "index.html";
+  }).catch(function(error) {
+    // Handle Errors here.
+    var errorCode = error.code;
+    var errorMessage = error.message;
+    console.log(errorCode);
+    console.log(errorMessage);
+    alert(errorMessage);
+    clearReg();
+  });
+});
+
+//Login using your account credentials
+//and getting user ID
+$("#login-button").on("click", ()=>{
+  let email = $("#logemail").val();
+  let pwd = $("#logpass").val();
+  fbauth.signInWithEmailAndPassword(auth, email, pwd).then(
+    somedata=>{
+      User.uid = somedata.user.uid;
+      console.log(User.uid)
+      // rtdb.onValue(`users/${uid}/`, data => {
+      //   console.log("here")
+      //   console.log(data.val())
+      //   console.log("here")
+
+      //   username = data.val().username
+      //   console.log(username)        
+    // });
+      window.location.href = "chat.html";
+    }).catch(function(error) {
+      // Handle Errors here.
+      var errorCode = error.code;
+      var errorMessage = error.message;
+      console.log(errorCode);
+      if(errorCode == "auth/user-not-found"){
+        alert("User not Found")
+      }
+      if(errorCode == "auth/internal-error"){
+        alert("Incorrect password")
+      }
+      if(errorCode == "auth/invalid-email"){
+        alert("Email address not found")
+      }
+      if(errorCode == "auth/wrong-password"){
+        alert("Email address not found")
+      }
+      console.log(errorMessage);
+      clearReg();
+    });
+});
+
+//Console log User
+fbauth.onAuthStateChanged(auth, user => {
+  if (!!user){
+    console.log("User Created");
+  } else {
+    console.log("User not created")
+  }
+});
+
+
+// clearReg
+// clears the input fields on the login
+// and register options
+function clearReg() {
+  $("#regemail").val("");
+  $("#regpass1").val("");
+  $("#regpass2").val("");
+  $("#regusername").val("");
+
+}
+
+// MsgHTML: takes in a Msg object
+// returns the approprate html to append for a message
+function msgHTML(Msg) {
+
+  //Checking to see if the message was sent today.
+  //If not, append the day of the week to the time
+  if(getTime().day == Msg.time.day){
+    return (
+      `<li class="msg" id=${Msg.key}>
+        <i class="name-date"> 
+          <i class="name" style="color:${Msg.color}; font-weight: bold;">${Msg.name}: </i>
+          <i class="msg-date"> ${Msg.time.hour}:${Msg.time.minute} ${Msg.time.midday}</i>
+        </i>
+        <i class="msg-details">
+          <i class="msg-text"> ${Msg.msg} </i> 
+          <input class="details-btn"; type="button"; value="..."></button> 
+        </i>
+      </li>`)
+  }
+
+  else{
+    return (
+      `<li class="msg" id=${Msg.key}>
+        <i class="name-date"> 
+          <i class="name" style="color:${Msg.color}; font-weight: bold;">${Msg.name}: </i>
+          <i class="msg-date"> ${Msg.time.day} ${Msg.time.hour}:${Msg.time.minute} ${Msg.time.midday}</i>
+        </i>
+        <i class="msg-details">
+          <i class="msg-text"> ${Msg.msg} </i> 
+          <input class="details-btn"; type="button"; value="..."></button> 
+        </i>
+      </li>`
+    );
+  }
+}
+
+console.log(User.uid)
+console.log("After User.uid")
 
 
 // submit funciton
@@ -46,11 +199,15 @@ let msgRef = rtdb.ref(db, "/Chat");
 // which is where the user enters a message, and adds that 
 // Message along with their name to the rtdb
 $("#messageForm").submit(function(event){
-    let name = $("#name").val()
-    if(name == "") {
-      alert("Please input your name above");
-      return false;
-    } 
+    // let name = uid.username;
+
+      // rtdb.get(`users/qq4jRXLnJWPdkNpFcQldTJOo93q2`, snapshot => {
+      //   name = snapshot.val().username;
+      //   console.log("here")
+      //   alert(name);
+      // });
+
+    // Need a better way of fetching data, need to research
     let text = $("#msg-input").val()
     if(text == ""){
       alert("Message can not be blank");
@@ -66,13 +223,13 @@ $("#messageForm").submit(function(event){
       $("#msg-input").val("");
       return;
     }
-
-    let userColor = colorNames(name)
+    let userColor = colorNames(User.uid)
     let time = getTime();
     console.log(time);
+    event.preventDefault();
 
     rtdb.push(msgRef, {
-      name : name,
+      name : User.uid,
       msg : text,
       color : userColor,
       time : time
@@ -89,53 +246,20 @@ $("#messageForm").submit(function(event){
 let loadMsgs = function() {
   rtdb.onValue(msgRef, data => {
     $("#messages").empty();
-
-    $("#messages").append(
-      `<li class="msg">
-        <i class="name-date">
-            <i class="name" style="font-weight: bold">Host: </i>
-            <i class="msg-date"></i>
-        </i>
-        <i class="msg-text"> Hello and Welcome!</i>
-      </li>`
-    );
+    let hostMsg = new Msg("key", "Host", "lightgray", getTime(), "Hello and Welcome!")
+    $("#messages").append(msgHTML(hostMsg));
 
     data.forEach(userSnapshot => {
-        let name = userSnapshot.val().name;
-        let msg = userSnapshot.val().msg;
-        let color = userSnapshot.val().color;
-        let time = userSnapshot.val().time;
-        let key = userSnapshot.key;
-        
+        let newMsg = new Msg(userSnapshot.key, userSnapshot.val().name, userSnapshot.val().color, 
+        userSnapshot.val().time, userSnapshot.val().msg)
         event.preventDefault();
-
-        if(getTime().day == time.day){
-          $("#messages").append(
-            `<li class="msg" id=${key}>
-              <i class="name-date"> 
-                <i class="name" style="color:${color}; font-weight: bold;">${name}: </i>
-                <i class="msg-date"> ${time.hour}:${time.minute} ${time.midday}</i>
-              </i>
-              <i class="msg-text"> ${msg} </i>
-            </li>`
-          );
-        }
-        else{
-          $("#messages").append(
-            `<li class="msg" id=${key}>
-              <i class="name-date"> 
-                <i class="name" style="color:${color}; font-weight: bold;">${name}: </i>
-                <i class="msg-date"> ${time.day} ${time.hour}:${time.minute} ${time.midday}</i>
-              </i>
-              <i class="msg-text"> ${msg} </i>
-            </li>`
-          );
-        }
-        
+        $("#messages").append(msgHTML(newMsg));
     });
     
 });
 };
+
+
 
 // colorNames: Takes in a string (name)
 // This function iterates through the messages in the rtdb
@@ -147,12 +271,12 @@ let colorNames = function(name) {
   rtdb.onValue(msgRef, data => {
     data.forEach(userSnapshot => {
         let user = userSnapshot.val().name;
-
         if(user == name){
           color = userSnapshot.val().color;
         }
     });  
   });
+
   if (color == ""){
     var randomColor = Math.floor(Math.random()*16777215).toString(16);
     return "#" + randomColor; 
@@ -192,6 +316,7 @@ let getTime = function(){
 
   return {day, hour, minute, midday};
 };
+
 
 //Calling reloadMsgs
 loadMsgs();

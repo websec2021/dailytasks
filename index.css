@@ -4,10 +4,28 @@ body {
     margin: 0 auto;
     max-width: 50em;
     line-height: 1.5;
-    padding: 4em 1em;
+    padding: 2em 1em;
     color: rgb(255, 255, 255);
-    background-color: rgb(80, 80, 80);
-}
+  
+    /* Funky Background */
+    background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+    background-size: 400% 400%;
+    animation: gradient 15s ease infinite;
+    height: 100vh;
+} 
+
+/* Make Background move and stuff */
+@keyframes gradient {
+        0% {
+            background-position: 0% 50%;
+        }
+        50% {
+            background-position: 100% 50%;
+        }
+        100% {
+            background-position: 0% 50%;
+        }
+}   
   
 h2 {
     margin-top: 1em;
@@ -19,8 +37,21 @@ h3 {
     font-weight: lighter;
 }
 
+/* Autocomplete emails and passwords will not make make
+input fields change colors */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active{
+    transition: background-color 5000s ease-in-out 0s;
+}
+
+input:-webkit-autofill{
+    -webkit-text-fill-color: white !important;
+}
+
 #header h1 {
-    text-align:  center;
+    text-align: center;
     font-size: 50px; 
     font-weight: lighter;
     letter-spacing:1px;
@@ -34,39 +65,184 @@ h3 {
 #header h1:after,#header h1:before {
     content: " ";
     display: block;
-    border-bottom: 1px solid salmon;
-    background-color:salmon;
+    
 }
 
 #header p {
     text-align:  center;
 }
 
-.input-container {
-    display: grid;
-    grid-template-columns: auto auto;
-    background-color: salmon;
+/* Login Container Styling */
+#login-container {
+    grid-template-columns: 50% 50%;
+    grid-template-rows: 20% 20% 20% 20% 20%;
+    background-color: rgba(65, 65, 65, 0.5);
     padding: 15px;
-    color: rgb(107, 107, 107);
+    width: 300px;
+    height: 350px;
+    color: white;
+    border-radius: 20px;
+    margin: 0 auto;
+}
+
+/* Grid for so text and input fields are stacked */
+#login {
+    display: grid;
+    text-align: center;
+    grid-template-rows: 25% 25% 25% 35% 10%;
+}
+
+/* "Sign In" text styling */
+#login-text {
+    grid-row-start: 1;
+    padding-bottom: 30px;
+    font-size: 25px;
+    font-style: normal
+}
+
+/* Email input field */
+#logemail {
+    grid-row-start: 2;
+    margin : 0 auto;
+}
+
+/* Password input field */
+#logpass {
+    margin : 0 auto;
+    grid-row-start: 3;
+
+}
+
+/* Login button styling */
+#login-button {
+    grid-row-start: 4;
+    margin: 24px;
+    background-color: rgba(255, 255, 255, 0.5);
+    border-color: transparent;
     border-radius: 20px;
 
-  }
-  
-.input-item {
-    background-color: rgba(255, 255, 255, 0.8);
-    padding-bottom: 15px;
+}
+
+#login-button:hover {
+    background-color: rgba(126, 255, 133, 0.5);
+    color: white;
+}
+
+/* Grid for sign up field so text and button are next to eachother */
+#sign-up-field {
+    grid-row-start: 5;
+    display: grid;
+    grid-template-columns: 30% 30%;
+    justify-content: center;
+    font-size: 15px;
+    font-style: normal;
+    font-weight: 300;
+}
+
+#sign-up-text {
+    grid-column-start: 1;
     text-align: center;
 }
 
-#input8 {
-    border-top-left-radius: 20px;
-    border-bottom-left-radius: 20px;
+/* Sign up button styling */
+#sign-up {
+    grid-column-start: 2;
+    background-color: transparent;
+    color: white;
+    border: none;
+    font-size: 15px;
+    font-style: normal;
 }
 
-#output8 {
+#sign-up:hover {
+    color: rgba(126, 255, 133, 0.5);
+}
+  
+
+
+#register-container {
+    grid-template-columns: 50% 50%;
+    grid-template-rows: 20% 20% 20% 20% 20%;
+    background-color: rgba(65, 65, 65, 0.5);
+    padding: 15px;
+    width: 300px;
+    height: px;
+    color: white;
+    border-radius: 20px;
+    margin: 0 auto;
+}
+
+#register {
+    display: grid;
+    grid-template-rows: 20% 20% 20% 20% 20% 20%;
+    padding-bottom: 60px;
+    text-align: center;
+
+}
+
+#register-text {
+    grid-row-start: 1;
+    font-size: 25px;
+    padding-bottom: 100px;
+    font-style: normal
+}
+
+#register-button {
+    grid-row-start: 6;
+    margin: 14px;
+    background-color: rgba(255, 255, 255, 0.5);
+    border-color: transparent;
+    border-radius: 20px;
+}
+
+#register-button:hover {
+    background-color: rgba(126, 255, 133, 0.5);
+    color: white;
+}
+
+#regemail {
+    grid-row-start: 2;
+    margin : 0 auto;
+}
+
+#regusername {
+    grid-row-start: 3;
+    margin : 0 auto;
+}
+
+#regpass1 {
+    grid-row-start: 4;
+    margin : 0 auto;
+}
+
+#regpass2 {
+    grid-row-start: 5;
+    margin : 0 auto;
+}
+
+.input {
+    width: 75%;
+    border: none;
+    border-bottom: 2px solid white;
+    background-color: transparent;
+    margin-bottom: 10px;
+    color: white;
+}
+
+.input::placeholder{
+    color: white
+}
+
+.input:focus {
+    outline: none;
+}
+
+
+#login {
     border-top-right-radius: 20px;
     border-bottom-right-radius: 20px;
 }
+
 
 #pageslink {
     color: lightblue;
@@ -76,14 +252,21 @@ h3 {
 /* Chat App */
 
 #closing p{
-    padding-top: 3em;
+    padding-top: 1em;
     font-style: italic;
     text-align:  center;
     font-weight: lighter;
 }
 
+.chat {
+    display: grid;
+    grid-template-rows: auto auto;
+}
+
 #chat-window {
+    display: grid;
     grid-template-columns: auto auto;
+    grid-row-start: 1;
     background-color: rgba(74, 74, 74);
     padding: 15px;
     color: rgb(107, 107, 107);
@@ -92,9 +275,14 @@ h3 {
     
 }
 
+.input-window {
+    /* background-color: rgba(74, 74, 74); */
+    padding: 15px;
+    border-radius: 20px;
+}
+
 .msg:hover {
-    background-color: rgb(138, 138, 138);
-    
+    background-color: rgb(138, 138, 138);  
 }
 
 #messages {
@@ -113,6 +301,7 @@ h3 {
 
 #messageForm {
     /* background-color: rgba(255, 255, 255, 0.8); */
+    grid-row-start: 2;
     padding-bottom: 10px;
     padding-top: 20px;
 
@@ -136,7 +325,6 @@ h3 {
     font-weight: 275;
     margin-top: -4px;
     padding-bottom: 5px;
-
 }
 
 .msg {
@@ -160,6 +348,27 @@ h3 {
     padding-top: 5px;
 
 }
+
+.msg-details {
+    display: grid;
+    grid-template-columns: 95% 5%;
+    grid-row-start: 2;
+}
+
+.details-btn {
+    grid-column-start: 2;
+    border-radius: 20px;
+    width: 30px;
+    vertical-align: center;
+    margin-bottom: 4px;
+    margin-bottom: 10px;
+    display: normal;
+    background-color: rgb(128, 128, 128);
+    border-color: white;
+    color: white;
+    border-style: hidden;
+}
+
 
 
 
