@@ -26,6 +26,9 @@ const app = initializeApp(firebaseConfig);
 let db = rtdb.getDatabase(app);
 let auth = fbauth.getAuth(app);
 let msgRef = rtdb.ref(db, "/Chat");
+let userRef = rtdb.ref(db, "/users");
+let userObj = false;
+
 
 // Msg object
 // holds all the information held in a single message
@@ -41,9 +44,6 @@ class Msg {
 
 var User = new Object();
 
-var userRef;
-var userRoleRef;
-
 // When "Sign up!" is clicked, brings you to the register page
 $("#sign-up").on("click", ()=>{
   window.location.href = "register.html";
@@ -54,7 +54,7 @@ $("#register-button").on("click", ()=>{
   let email = $("#regemail").val();
   let p1 = $("#regpass1").val();
   let p2 = $("#regpass2").val();
-  let username = $("#regusername").val()
+  User.username = $("#regusername").val()
 
   //Checking to see if email is in proper format
   var mailformat = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
@@ -72,16 +72,19 @@ $("#register-button").on("click", ()=>{
   }
 
   //Getting ID of user and pushing username
-  //and roles
+  //and role
   fbauth.createUserWithEmailAndPassword(auth, email, p1).then(somedata=>{
-    var uid = somedata.user.uid;
-    userRef = rtdb.ref(db, `/users/${uid}/username`);
-    userRoleRef = rtdb.ref(db, `/users/${uid}/roles/user`);
-    console.log(userReg)
-    console.log(userRoleRef)
-    rtdb.set(userRef, username)
-    rtdb.set(userRoleRef, true);
-    window.location.href = "index.html";
+    User.uid = somedata.user.uid
+    let usernameRef = rtdb.ref(db, `/users/${somedata.user.uid}/username`);
+    let colorRef = rtdb.ref(db, `/users/${somedata.user.uid}/color`);
+    let userRoleRef = rtdb.ref(db, `/users/${somedata.user.uid}/roles/user`);
+
+    rtdb.set(usernameRef, User.username)
+    rtdb.set(colorRef, getColor(User.uid))
+    rtdb.set(userRoleRef, true);  
+    
+    window.location.href = "chat.html";
+  
   }).catch(function(error) {
     // Handle Errors here.
     var errorCode = error.code;
@@ -93,6 +96,7 @@ $("#register-button").on("click", ()=>{
   });
 });
 
+
 //Login using your account credentials
 //and getting user ID
 $("#login-button").on("click", ()=>{
@@ -100,17 +104,10 @@ $("#login-button").on("click", ()=>{
   let pwd = $("#logpass").val();
   fbauth.signInWithEmailAndPassword(auth, email, pwd).then(
     somedata=>{
-      User.uid = somedata.user.uid;
-      console.log(User.uid)
-      // rtdb.onValue(`users/${uid}/`, data => {
-      //   console.log("here")
-      //   console.log(data.val())
-      //   console.log("here")
+    
+    console.log("Login Successful")
+    window.location.href = "chat.html";
 
-      //   username = data.val().username
-      //   console.log(username)        
-    // });
-      window.location.href = "chat.html";
     }).catch(function(error) {
       // Handle Errors here.
       var errorCode = error.code;
@@ -126,7 +123,7 @@ $("#login-button").on("click", ()=>{
         alert("Email address not found")
       }
       if(errorCode == "auth/wrong-password"){
-        alert("Email address not found")
+        alert("Incorrect Pass")
       }
       console.log(errorMessage);
       clearReg();
@@ -137,9 +134,21 @@ $("#login-button").on("click", ()=>{
 fbauth.onAuthStateChanged(auth, user => {
   if (!!user){
     console.log("User Created");
+    User.uid = user.uid;
+
+    //Finding username of user
+    rtdb.onValue(userRef, ss=>{
+      userObj = ss.val();
+        if (!!userObj && userObj.hasOwnProperty(User.uid)){
+          User.username = userObj[User.uid].username;
+          User.color = userObj[User.uid].color;
+        }
+    });
+
   } else {
     console.log("User not created")
   }
+  return user
 });
 
 
@@ -190,9 +199,6 @@ function msgHTML(Msg) {
   }
 }
 
-console.log(User.uid)
-console.log("After User.uid")
-
 
 // submit funciton
 // Listens for a submit on the input id #messageForm
@@ -223,17 +229,24 @@ $("#messageForm").submit(function(event){
       $("#msg-input").val("");
       return;
     }
-    let userColor = colorNames(User.uid)
+
+    event.preventDefault();
+
+    let name = User.username;
+    let userColor = User.color;
     let time = getTime();
     console.log(time);
     event.preventDefault();
 
     rtdb.push(msgRef, {
-      name : User.uid,
+      name : name,
       msg : text,
       color : userColor,
       time : time
     });
+
+    event.preventDefault();
+
 
   $("#msg-input").val("");
 });
@@ -266,17 +279,8 @@ let loadMsgs = function() {
 // and searches to see if that name belongs to a message,
 // if it does, it returns that users color.
 // If that name does not exist it generates a color for that user
-let colorNames = function(name) {
+let getColor = function() {
   let color = "";
-  rtdb.onValue(msgRef, data => {
-    data.forEach(userSnapshot => {
-        let user = userSnapshot.val().name;
-        if(user == name){
-          color = userSnapshot.val().color;
-        }
-    });  
-  });
-
   if (color == ""){
     var randomColor = Math.floor(Math.random()*16777215).toString(16);
     return "#" + randomColor; 
