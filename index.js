@@ -295,35 +295,24 @@ let getTime = function(){
 //Calling reloadMsgs
 loadMsgs();
 
-
-//Making it possible for you to press the details button "..." 
-//and it change color and edit the text. Havent figured out how 
-//I want it to switch back colors. 
-
-//I have not set any firewalls rules yet, takling after I get this done. 
 let isclicked = false;
+let text = "";
 $(document).on("click",".details-btn",function() {
 
   let id = "#" + $(this).closest('li').attr('id').toString()
-  console.log($(id).children(".msg-details").children(".msg-text").html())
-  console.log(id)
 
   if(isclicked == false){ 
-    let text = $(id).children(".msg-details").children(".msg-text").text()
-    $(id).css( "background-color", "rgba(126, 255, 133, 0.2)" );
-    text = "<input type='text' class='edit-msg' placeholder='Edit: " + text + "'>"
-    $(id).children(".msg-details").children(".msg-text").replaceWith(text);
+    text = $(id).children(".msg-details").children(".msg-text").text()
+    $(id).css( "background-color", "rgba(138, 138, 138, 0.9)" );
+    let htmltext = "<input type='text' class='edit-msg' placeholder='Edit: "+ text +"'>"
+    $(id).children(".msg-details").children(".msg-text").replaceWith(htmltext);
     isclicked = true;
   }
   else {
-    let text = $(id).children(".msg-details").children(".edit-msg").text()
-    let oldText = "<i class='msg-text'> " + text + " </i> ";
-    console.log("oldtext: ", oldText)
-    //$(id).css( "background-color", "transparent" );
-    text = $(id).children(".msg-details").children(".msg-text").text()
-    $(id).children(".msg-details").children(".edit-msg").replaceWith(oldText);
+    $(id).removeAttr('style');
+    let htmltext = "<i class='msg-text'> " + text + " </i>";
+    $(id).children(".msg-details").children(".edit-msg").replaceWith(htmltext);
     isclicked = false;
-
   }
 
 });
