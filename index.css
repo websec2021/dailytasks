@@ -9,6 +9,8 @@ body {
   
     /* Funky Background */
     background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+    /* background: linear-gradient(-45deg, #23a6d5, #7d53f0, #23a6d5, #23d5ab); */
+
     background-size: 400% 400%;
     animation: gradient 15s ease infinite;
     height: 100vh;
@@ -260,14 +262,17 @@ input:-webkit-autofill{
 
 .chat {
     display: grid;
+    grid-template-columns: 27% auto;
     grid-template-rows: auto auto;
+    justify-content: center;
 }
 
 #chat-window {
+    grid-column-start: 2;
     display: grid;
     grid-template-columns: auto auto;
     grid-row-start: 1;
-    background-color: rgba(74, 74, 74);
+    background-color: rgba(74, 74, 74, 0.6);
     padding: 15px;
     color: rgb(107, 107, 107);
     border-radius: 20px;
@@ -282,18 +287,18 @@ input:-webkit-autofill{
 }
 
 .msg:hover {
-    background-color: rgb(138, 138, 138);  
+    background-color: rgb(138, 138, 138, 0.4);  
 }
 
 #messages {
     color: rgba(212, 212, 212);
-    background-color: rgb(128, 128, 128);
+    background-color: rgb(128, 128, 128, 0.6);
     padding: 30px;
     padding-bottom: 200px;
     margin: auto;
     border-radius: 20px;
-    height: 150px;
-    width: 700px;
+    height: 300px;
+    width: 800px;
     overflow-x: hidden;
     overflow-y: auto;
 
@@ -304,12 +309,14 @@ input:-webkit-autofill{
     grid-row-start: 2;
     padding-bottom: 10px;
     padding-top: 20px;
+    color: rgb(245, 245, 245);
+
 
 }
 
 #msg-input {
     width: 100%;
-    background-color: rgba(255, 255, 255, 0.8);
+    background-color: rgba(255, 255, 255, 0.6);
     font-family: "Raleway", sans-serif;
     font-weight: 300;
     padding: 12px 20px;
@@ -321,7 +328,7 @@ input:-webkit-autofill{
 }
 
 .msg-text {
-    color: rgba(212, 212, 212);
+    color: rgb(245, 245, 245);
     font-weight: 275;
     margin-top: -4px;
     padding-bottom: 5px;
@@ -333,7 +340,8 @@ input:-webkit-autofill{
 
 .name-date {
     display: grid;
-    grid-template-columns: 6.5% 93.5%;
+    color: rgb(245, 245, 245);
+    grid-template-columns: 50% 50%;
     padding-top: 5px;
     position: relative;
     vertical-align: sub;
@@ -363,13 +371,58 @@ input:-webkit-autofill{
     margin-bottom: 4px;
     margin-bottom: 10px;
     display: normal;
-    background-color: rgb(128, 128, 128);
+    background-color: transparent;
     border-color: white;
     color: white;
     border-style: hidden;
 }
 
+.details-btn:hover {
+    background-color: rgba(126, 255, 133, 0.5);
+   
+}
 
+#info {
+    display: grid;
+    grid-template-columns: auto auto;
+    grid-column-start: 1;
+    padding-right: 200px;
+    padding-top: 20px;
+
+}
+
+#userPic {
+    grid-column-start: 1;
+    width: 25px;
+    height: 25px;
+    padding-right: 10px;
+}
+
+#username {
+    font-weight: bolder;
+    font-style: normal;
+    grid-column-start: 2;
+}
+
+.edit-msg {
+    color: rgb(245, 245, 245);
+    font-family: "Raleway", sans-serif;
+    font-weight: 400;
+    font-style: italic;
+    font-size: 16px;
+    margin-top: -4px;
+    padding-bottom: 5px;
+    background-color: transparent;
+    border: none;
+}
+
+.edit-msg::placeholder {
+    color: rgb(245, 245, 245);
+}
+
+.edit-msg:focus {
+    outline: none;
+}
 
 
 

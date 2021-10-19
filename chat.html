@@ -8,11 +8,25 @@
 
     <body> 
         <div class="chat">
+            <form id="info"> 
+              <img id="userPic" src="userPic.png"></img>
+              <i id="username"></i>
+            </form>
             <div class="chat-window" id="chat-window">
               <ul id="messages">
-                <li class="msg">
+                <!-- <li class="msg">
                     <i class="name"></i>
                     <i class="msg-text"> Hello and Welcome!</i>
+                </li> -->
+                <li class="msg">
+                  <i class="name-date"> 
+                    <i class="name"></i>
+                    <i class="msg-date"></i>
+                  </i>
+                  <i class="msg-details">
+                    <i class="msg-text"></i> 
+                    <input class="details-btn"; type="button"></button> 
+                  </i>
                 </li>
               </ul>
               <form id="messageForm" autocomplete="off">

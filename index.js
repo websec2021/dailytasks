@@ -21,14 +21,10 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-
-
 let db = rtdb.getDatabase(app);
 let auth = fbauth.getAuth(app);
 let msgRef = rtdb.ref(db, "/Chat");
 let userRef = rtdb.ref(db, "/users");
-let userObj = false;
-
 
 // Msg object
 // holds all the information held in a single message
@@ -54,7 +50,7 @@ $("#register-button").on("click", ()=>{
   let email = $("#regemail").val();
   let p1 = $("#regpass1").val();
   let p2 = $("#regpass2").val();
-  User.username = $("#regusername").val()
+  let username = $("#regusername").val()
 
   //Checking to see if email is in proper format
   var mailformat = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
@@ -74,18 +70,20 @@ $("#register-button").on("click", ()=>{
   //Getting ID of user and pushing username
   //and role
   fbauth.createUserWithEmailAndPassword(auth, email, p1).then(somedata=>{
-    User.uid = somedata.user.uid
+    User.uid = somedata.user.uid;
+    User.username = username;
     let usernameRef = rtdb.ref(db, `/users/${somedata.user.uid}/username`);
     let colorRef = rtdb.ref(db, `/users/${somedata.user.uid}/color`);
     let userRoleRef = rtdb.ref(db, `/users/${somedata.user.uid}/roles/user`);
 
-    rtdb.set(usernameRef, User.username)
-    rtdb.set(colorRef, getColor(User.uid))
+    //Pushing user data to firebase
+    rtdb.set(usernameRef, User.username);
+    rtdb.set(colorRef, getColor(User.uid));
     rtdb.set(userRoleRef, true);  
     
     window.location.href = "chat.html";
-  
-  }).catch(function(error) {
+    return User;
+  }).catch(function(error) { 
     // Handle Errors here.
     var errorCode = error.code;
     var errorMessage = error.message;
@@ -96,41 +94,28 @@ $("#register-button").on("click", ()=>{
   });
 });
 
-
 //Login using your account credentials
-//and getting user ID
 $("#login-button").on("click", ()=>{
   let email = $("#logemail").val();
   let pwd = $("#logpass").val();
   fbauth.signInWithEmailAndPassword(auth, email, pwd).then(
     somedata=>{
     
-    console.log("Login Successful")
+    console.log("Login Successful");
     window.location.href = "chat.html";
 
     }).catch(function(error) {
       // Handle Errors here.
-      var errorCode = error.code;
-      var errorMessage = error.message;
-      console.log(errorCode);
-      if(errorCode == "auth/user-not-found"){
-        alert("User not Found")
-      }
-      if(errorCode == "auth/internal-error"){
-        alert("Incorrect password")
-      }
-      if(errorCode == "auth/invalid-email"){
-        alert("Email address not found")
-      }
-      if(errorCode == "auth/wrong-password"){
-        alert("Incorrect Pass")
-      }
-      console.log(errorMessage);
-      clearReg();
+    var errorCode = error.code;
+    var errorMessage = error.message;
+    console.log(errorCode);
+    console.log(errorMessage);
+    alert(errorMessage);
+    clearReg();
     });
 });
 
-//Console log User
+//Get user information
 fbauth.onAuthStateChanged(auth, user => {
   if (!!user){
     console.log("User Created");
@@ -138,15 +123,16 @@ fbauth.onAuthStateChanged(auth, user => {
 
     //Finding username of user
     rtdb.onValue(userRef, ss=>{
-      userObj = ss.val();
+      let userObj = ss.val();
         if (!!userObj && userObj.hasOwnProperty(User.uid)){
           User.username = userObj[User.uid].username;
+          $('#username').append(User.username);
           User.color = userObj[User.uid].color;
+
         }
     });
-
   } else {
-    console.log("User not created")
+    console.log("User not created");
   }
   return user
 });
@@ -205,15 +191,7 @@ function msgHTML(Msg) {
 // which is where the user enters a message, and adds that 
 // Message along with their name to the rtdb
 $("#messageForm").submit(function(event){
-    // let name = uid.username;
-
-      // rtdb.get(`users/qq4jRXLnJWPdkNpFcQldTJOo93q2`, snapshot => {
-      //   name = snapshot.val().username;
-      //   console.log("here")
-      //   alert(name);
-      // });
-
-    // Need a better way of fetching data, need to research
+    
     let text = $("#msg-input").val()
     if(text == ""){
       alert("Message can not be blank");
@@ -231,11 +209,9 @@ $("#messageForm").submit(function(event){
     }
 
     event.preventDefault();
-
     let name = User.username;
     let userColor = User.color;
     let time = getTime();
-    console.log(time);
     event.preventDefault();
 
     rtdb.push(msgRef, {
@@ -244,7 +220,6 @@ $("#messageForm").submit(function(event){
       color : userColor,
       time : time
     });
-
     event.preventDefault();
 
 
@@ -268,8 +243,7 @@ let loadMsgs = function() {
         event.preventDefault();
         $("#messages").append(msgHTML(newMsg));
     });
-    
-});
+  });
 };
 
 
@@ -280,14 +254,8 @@ let loadMsgs = function() {
 // if it does, it returns that users color.
 // If that name does not exist it generates a color for that user
 let getColor = function() {
-  let color = "";
-  if (color == ""){
-    var randomColor = Math.floor(Math.random()*16777215).toString(16);
-    return "#" + randomColor; 
-  }
-  else {
-    return color;
-  }
+  var randomColor = Math.floor(Math.random()*16777215).toString(16);
+  return "#" + randomColor; 
 };
 
 
@@ -322,11 +290,42 @@ let getTime = function(){
 };
 
 
+
+
 //Calling reloadMsgs
 loadMsgs();
 
 
+//Making it possible for you to press the details button "..." 
+//and it change color and edit the text. Havent figured out how 
+//I want it to switch back colors. 
 
+//I have not set any firewalls rules yet, takling after I get this done. 
+let isclicked = false;
+$(document).on("click",".details-btn",function() {
 
+  let id = "#" + $(this).closest('li').attr('id').toString()
+  console.log($(id).children(".msg-details").children(".msg-text").html())
+  console.log(id)
+
+  if(isclicked == false){ 
+    let text = $(id).children(".msg-details").children(".msg-text").text()
+    $(id).css( "background-color", "rgba(126, 255, 133, 0.2)" );
+    text = "<input type='text' class='edit-msg' placeholder='Edit: " + text + "'>"
+    $(id).children(".msg-details").children(".msg-text").replaceWith(text);
+    isclicked = true;
+  }
+  else {
+    let text = $(id).children(".msg-details").children(".edit-msg").text()
+    let oldText = "<i class='msg-text'> " + text + " </i> ";
+    console.log("oldtext: ", oldText)
+    //$(id).css( "background-color", "transparent" );
+    text = $(id).children(".msg-details").children(".msg-text").text()
+    $(id).children(".msg-details").children(".edit-msg").replaceWith(oldText);
+    isclicked = false;
+
+  }
+
+});
 
 
