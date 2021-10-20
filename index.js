@@ -29,8 +29,9 @@ let userRef = rtdb.ref(db, "/users");
 // Msg object
 // holds all the information held in a single message
 class Msg {
-  constructor(key, name, color, time, msg) {
+  constructor(key, uid, name, color, time, msg) {
     this.key = key;
+    this.uid = uid;
     this.name = name;
     this.color = color;
     this.time = time;
@@ -214,8 +215,10 @@ $("#messageForm").submit(function(event){
     let time = getTime();
     event.preventDefault();
 
+    //Pushing new message to the database.
     rtdb.push(msgRef, {
       name : name,
+      uid : User.uid,
       msg : text,
       color : userColor,
       time : time
@@ -234,11 +237,11 @@ $("#messageForm").submit(function(event){
 let loadMsgs = function() {
   rtdb.onValue(msgRef, data => {
     $("#messages").empty();
-    let hostMsg = new Msg("key", "Host", "lightgray", getTime(), "Hello and Welcome!")
+    let hostMsg = new Msg("key", "none", "Host", "lightgray", getTime(), "Hello and Welcome!")
     $("#messages").append(msgHTML(hostMsg));
 
     data.forEach(userSnapshot => {
-        let newMsg = new Msg(userSnapshot.key, userSnapshot.val().name, userSnapshot.val().color, 
+        let newMsg = new Msg(userSnapshot.key, userSnapshot.val().uid, userSnapshot.val().name, userSnapshot.val().color, 
         userSnapshot.val().time, userSnapshot.val().msg)
         event.preventDefault();
         $("#messages").append(msgHTML(newMsg));
@@ -295,26 +298,56 @@ let getTime = function(){
 //Calling reloadMsgs
 loadMsgs();
 
+
+//Functions for editing messages.
+
+//Setting global vaiables to be used in multiple functinos
 let isclicked = false;
 let text = "";
+let msgID = ""
+
+//When the details button of a message is clicked
 $(document).on("click",".details-btn",function() {
+  //Getting message ID
+  msgID = $(this).closest('li').attr('id').toString()
+  let id = "#" + msgID
 
-  let id = "#" + $(this).closest('li').attr('id').toString()
-
+  //Changing color to green and creating input field
   if(isclicked == false){ 
     text = $(id).children(".msg-details").children(".msg-text").text()
-    $(id).css( "background-color", "rgba(138, 138, 138, 0.9)" );
-    let htmltext = "<input type='text' class='edit-msg' placeholder='Edit: "+ text +"'>"
+    $(id).css( "background-color", "rgba(126, 255, 133, 0.4)" );
+    let htmltext = `<input type='text' class='edit-msg' placeholder='Edit:${text}'>`
     $(id).children(".msg-details").children(".msg-text").replaceWith(htmltext);
     isclicked = true;
   }
+  //Removing the green from the message if details button is clicked again with no
+  //input being submitted.
   else {
     $(id).removeAttr('style');
-    let htmltext = "<i class='msg-text'> " + text + " </i>";
+    let htmltext = `<i class='msg-text'> ${text} </i>`;
     $(id).children(".msg-details").children(".edit-msg").replaceWith(htmltext);
     isclicked = false;
   }
-
 });
 
+//When input field is submitted on edited message
+$(document).on("keypress", ".edit-msg", function(event) {
+  if(event.which == 13){
+    //Writitng the new message to the database
+    let ref = rtdb.ref(db, `/Chat/${msgID}/msg`);
+    let newMsg = $(".edit-msg").val()
+    rtdb.set(ref, newMsg).then(() => {
+      loadMsgs();
+    })
+    .catch(() => {
+      //Catching any errors and making message red
+      let id = "#" + msgID
+      $(id).css( "background-color", "rgba(255, 0, 0, 0.4)" );
+      setTimeout(() => {
+        $(id).removeAttr('style');
+      }, 1000)
+    });
+    isclicked = false;
 
+  }
+});
