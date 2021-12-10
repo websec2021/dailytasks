@@ -91,7 +91,7 @@ $("#register-button").on("click", ()=>{
     console.log(errorCode);
     console.log(errorMessage);
     alert(errorMessage);
-    clearReg();
+    //clearReg();
   });
 });
 
@@ -112,7 +112,7 @@ $("#login-button").on("click", ()=>{
     console.log(errorCode);
     console.log(errorMessage);
     alert(errorMessage);
-    clearReg();
+    //clearReg();
     });
 });
 
@@ -247,6 +247,25 @@ let loadMsgs = function() {
         $("#messages").append(msgHTML(newMsg));
     });
   });
+
+  //Finding if User is admin
+  rtdb.onValue(userRef, ss=>{
+    let userObj = ss.val();
+      if (!!userObj && userObj.hasOwnProperty(User.uid)){
+        User.username = userObj[User.uid].username;
+        $('#username').append(User.username);
+        User.color = userObj[User.uid].color;
+        if(userObj[User.uid].roles.user == "admin") {
+          $("#info").append("<div> I am the admin!</div>")
+          rtdb.onValue(userRef, ss=>{
+            let userObj = ss.val();
+            $("#info").append(`<p>${JSON.stringify(userObj)}</p>`)
+
+
+          });
+        }
+      }
+  });
 };
 
 
@@ -269,6 +288,7 @@ let getColor = function() {
 // returns an object: {string, int, int, string}
 let getTime = function(){
   var d = new Date();
+  console.log(d)
   var hours = d.getHours();
   var hour = ((hours + 11) % 12 + 1);
 
